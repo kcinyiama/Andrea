@@ -7,8 +7,8 @@ import java.io.ByteArrayInputStream
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 
-data class RSSFeed(
-    val id: String,
+data class ParsedRssFeed(
+    val guid: String,
     val title: String,
     val link: String,
     val publicationDate: String,
@@ -26,14 +26,14 @@ private fun createSAXParserFactory() = SAXParserFactory.newInstance().apply {
     }
 }
 
-private fun createRSSFeedHandler(xmlString: String) = RSSFeedHandler().apply {
+private fun createRssFeedHandler(xmlString: String) = RssFeedHandler().apply {
     runCatching {
         val parser = createSAXParserFactory().newSAXParser()
         parser.parse(InputSource(ByteArrayInputStream(xmlString.toByteArray())), this)
     }
 }
 
-private class RSSFeedHandler : DefaultHandler() {
+private class RssFeedHandler : DefaultHandler() {
     companion object {
         const val ITEM = "item"
         const val TITLE = "title"
@@ -43,7 +43,7 @@ private class RSSFeedHandler : DefaultHandler() {
         const val DESCRIPTION = "description"
     }
 
-    private val feeds = mutableListOf<RSSFeed>()
+    private val feeds = mutableListOf<ParsedRssFeed>()
 
     private var processingItemTag = false
     private var currentTag: String? = null
@@ -96,18 +96,23 @@ private class RSSFeedHandler : DefaultHandler() {
     }
 
     private fun addItem() {
-        if (isRSSValid()) {
-            feeds += RSSFeed(rssItems[0]!!, rssItems[1]!!, rssItems[2]!!, rssItems[3]!!, rssItems[4]!!)
+        if (isRssValid()) {
+            feeds += ParsedRssFeed(
+                guid = rssItems[0]!!,
+                title = rssItems[1]!!,
+                link = rssItems[2]!!,
+                publicationDate = rssItems[3]!!,
+                description = rssItems[4]!!)
         }
         rssItems.fill(null)
     }
 
-    private fun isRSSValid() = rssItems.count { it == null } == 0
+    private fun isRssValid() = rssItems.count { it == null } == 0
 
-    fun getFeeds(): List<RSSFeed> = feeds
+    fun getFeeds(): List<ParsedRssFeed> = feeds
 }
 
-internal fun String.parseRSSFeeds(): List<RSSFeed> = when (isNullOrEmpty()) {
-    false -> createRSSFeedHandler(this).getFeeds()
+internal fun String.parseRssFeeds(): List<ParsedRssFeed> = when (isNullOrEmpty()) {
+    false -> createRssFeedHandler(this).getFeeds()
     else -> listOf()
 }
