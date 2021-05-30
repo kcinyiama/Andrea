@@ -1,8 +1,8 @@
-package com.andrea.rss
+package com.andrea.rss.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.andrea.rss.ui.main.MainFragment
+import com.andrea.rss.R
 
 class MainActivity : AppCompatActivity() {
 
