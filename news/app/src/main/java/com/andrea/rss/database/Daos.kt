@@ -7,14 +7,23 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RssItemDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg item: DatabaseRssItem)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(vararg item: DatabaseRssItem)
+
+    @Update
+    suspend fun update(vararg feeds: DatabaseRssItem)
 
     @Query("SELECT * FROM rss_item")
     fun getItems(): Flow<List<DatabaseRssItem>>
 
+    @Query("SELECT * FROM rss_item WHERE fetched = 0")
+    fun geItemsByFetchStatus(): Flow<List<DatabaseRssItem>>
+
     @Query("SELECT * FROM rss_item WHERE id = :id")
-    fun getItem(id: Int): Flow<DatabaseRssItem>
+    fun getItemById(id: Int): Flow<DatabaseRssItem?>
+
+    @Query("SELECT * FROM rss_item WHERE url = :url")
+    fun getItemByUrl(url: String): DatabaseRssItem?
 
     /*
      * This method requires Room to run two queries so Transaction
@@ -29,19 +38,19 @@ interface RssItemDao {
 interface RssFeedDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vararg feeds: DatabaseRssFeed)
+    suspend fun insert(vararg feeds: DatabaseRssFeed)
 
     @VisibleForTesting
     @Query("SELECT * FROM rss_feed")
     fun getFeeds(): Flow<List<DatabaseRssFeed>>
 
     @Update
-    fun update(vararg feeds: DatabaseRssFeed)
+    suspend fun update(vararg feeds: DatabaseRssFeed)
 
     @Delete
-    fun delete(vararg feeds: DatabaseRssFeed)
+    suspend fun delete(vararg feeds: DatabaseRssFeed)
 
     @Transaction
     @Query("SELECT * FROM rss_feed WHERE id = :id")
-    fun getFeedById(id: Int): Flow<DatabaseRssFeed>
+    fun getFeedById(id: Int): Flow<DatabaseRssFeed?>
 }

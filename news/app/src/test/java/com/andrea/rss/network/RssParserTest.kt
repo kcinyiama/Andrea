@@ -1,5 +1,7 @@
 package com.andrea.rss.network
 
+import com.andrea.rss.RSS_INCOMPLETE_SAMPLE_DATA
+import com.andrea.rss.RSS_SAMPLE_DATA
 import org.junit.Test
 import org.junit.Assert.*
 

@@ -34,6 +34,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
     kotlinOptions {
         jvmTarget = "1.8"
     }
@@ -48,6 +51,9 @@ dependencies {
     implementation("com.google.android.material:material:1.3.0")
     implementation("androidx.constraintlayout:constraintlayout:2.0.4")
 
+    // Android UI
+    implementation("androidx.fragment:fragment-ktx:1.3.4")
+
     // ViewModel and LiveData (arch components)
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
@@ -59,7 +65,7 @@ dependencies {
     kapt("androidx.room:room-compiler:2.3.0")
 
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1")
 
     // Retrofit for networking

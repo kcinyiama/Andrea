@@ -1,4 +1,4 @@
-package com.andrea.rss.network
+package com.andrea.rss
 
 val RSS_SAMPLE_DATA = """
     <rss xmlns:media="http://example.com/rss/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">

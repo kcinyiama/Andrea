@@ -39,17 +39,17 @@ class RssDatabaseTest {
 
     @Test
     fun testInsertAndGetRssItems() = runBlocking {
-        val item1 = DatabaseRssItem(name = "Rss sports")
-        val item2 = DatabaseRssItem(name = "Rss fashion")
-        val item3 = DatabaseRssItem(name = "Rss technology")
+        val item1 = DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1")
+        val item2 = DatabaseRssItem(name = "Rss fashion", url = "www.example.com/link2")
+        val item3 = DatabaseRssItem(name = "Rss technology", url = "www.example.com/link3")
 
         itemsDao.insert(item1, item2, item3)
         val items = itemsDao.getItems().first()
         assertTrue(items.size == 3)
 
-        val exp1 = DatabaseRssItem(1, "Rss sports")
-        val exp2 = DatabaseRssItem(2, "Rss fashion")
-        val exp3 = DatabaseRssItem(3, "Rss technology")
+        val exp1 = DatabaseRssItem(1, "Rss sports", url = "www.example.com/link1")
+        val exp2 = DatabaseRssItem(2, "Rss fashion", url = "www.example.com/link2")
+        val exp3 = DatabaseRssItem(3, "Rss technology", url = "www.example.com/link3")
 
         assertTrue(items.containsAll(listOf(exp1, exp2, exp3)))
     }
@@ -57,8 +57,8 @@ class RssDatabaseTest {
     @Test
     fun testInsertAndGetRssFeeds() = runBlocking {
         // Save the rss items
-        val item1 = DatabaseRssItem(name = "Rss sports")
-        val item2 = DatabaseRssItem(name = "Rss fashion")
+        val item1 = DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1")
+        val item2 = DatabaseRssItem(name = "Rss fashion", url = "www.example.com/link2")
         itemsDao.insert(item1, item2)
 
         val feed1 = DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1)
@@ -78,13 +78,13 @@ class RssDatabaseTest {
     }
 
     @Test(expected = SQLiteConstraintException::class)
-    fun testInsertRssFeedWithoutItemFails() {
+    fun testInsertRssFeedWithoutItemFails() = runBlocking {
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1))
     }
 
     @Test
     fun testDuplicateGuidIsReplaced() = runBlocking {
-        itemsDao.insert(DatabaseRssItem(name = "Rss sports"))
+        itemsDao.insert(DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1"))
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1))
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 2", rssItemId = 1))
 
@@ -94,9 +94,11 @@ class RssDatabaseTest {
         assertEquals(exp1, items.first())
     }
 
+    // TODO Write test to check urls in DatabaseRssItem cannot not duplicated
+
     @Test
     fun testInsertAndGetRssFeed() = runBlocking {
-        itemsDao.insert(DatabaseRssItem(name = "Rss sports"))
+        itemsDao.insert(DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1"))
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1))
 
         val savedFeed = feedsDao.getFeedById(1).first()
@@ -108,22 +110,22 @@ class RssDatabaseTest {
 
     @Test
     fun testInsertAndUpdateRssFeed() = runBlocking {
-        itemsDao.insert(DatabaseRssItem(name = "Rss sports"))
+        itemsDao.insert(DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1"))
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1))
 
-        var savedFeed = feedsDao.getFeedById(1).first()
+        var savedFeed = feedsDao.getFeedById(1).first()!!
         savedFeed.guid = "guid2"
         savedFeed.title = "Rss sport feed issue 2"
         feedsDao.update(savedFeed)
 
-        savedFeed = feedsDao.getFeedById(1).first()
+        savedFeed = feedsDao.getFeedById(1).first()!!
         val expFeed1 = DatabaseRssFeed(id = 1, guid = "guid2", title = "Rss sport feed issue 2", rssItemId = 1)
         assertEquals(expFeed1, savedFeed)
     }
 
     @Test
     fun testInsertAndDeleteRssFeed() = runBlocking {
-        itemsDao.insert(DatabaseRssItem(name = "Rss sports"))
+        itemsDao.insert(DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1"))
         feedsDao.insert(DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1))
 
         var savedFeed: DatabaseRssFeed? = feedsDao.getFeedById(1).first()
@@ -136,8 +138,8 @@ class RssDatabaseTest {
     @Test
     fun testInsertAndGetRssItemsWithFeeds() = runBlocking {
         // Save the rss items
-        val item1 = DatabaseRssItem(name = "Rss sports")
-        val item2 = DatabaseRssItem(name = "Rss fashion")
+        val item1 = DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1")
+        val item2 = DatabaseRssItem(name = "Rss fashion", url = "www.example.com/link2")
         itemsDao.insert(item1, item2)
 
         val feed1 = DatabaseRssFeed(guid = "guid1", title = "Rss sport feed 1", rssItemId = 1)
@@ -149,8 +151,8 @@ class RssDatabaseTest {
         val itemsWithFeeds = itemsDao.getItemsWithFeeds().first()
         assertTrue(itemsWithFeeds.size == 2)
 
-        val expItem1 = DatabaseRssItem(1, "Rss sports")
-        val expItem2 = DatabaseRssItem(2, "Rss fashion")
+        val expItem1 = DatabaseRssItem(1, "Rss sports", url = "www.example.com/link1")
+        val expItem2 = DatabaseRssItem(2, "Rss fashion", url = "www.example.com/link2")
 
         val expFeed1 = DatabaseRssFeed(id = 1, guid = "guid1", title = "Rss sport feed 1", rssItemId = 1)
         val expFeed2 = DatabaseRssFeed(id = 2, guid = "guid2", title = "Rss sport feed 2", rssItemId = 1)
