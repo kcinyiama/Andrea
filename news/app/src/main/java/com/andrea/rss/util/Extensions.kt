@@ -6,7 +6,9 @@ import java.util.*
 
 fun String.toMillis(): Long? {
     val parser: DateFormat = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z", Locale.US)
-    return parser.parse(this)?.time
+    return runCatching {
+        parser.parse(this)?.time
+    }.getOrNull()
 }
 
 private val PUNCTUATION = listOf(", ", "; ", ": ", " ")

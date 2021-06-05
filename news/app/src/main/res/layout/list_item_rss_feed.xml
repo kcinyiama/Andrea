@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="rssFeed"
+            type="com.andrea.rss.domain.RssFeed" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:cardElevation="0.6dp"
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="true"
+            app:strokeColor="@color/white">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp">
+
+                <TextView
+                    android:id="@+id/feed_title"
+                    style="@style/TextAppearance.AppCompat.Body2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="@{rssFeed.title}"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toStartOf="@+id/feed_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit" />
+
+                <TextView
+                    android:id="@+id/feed_body"
+                    style="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:text="@{rssFeed.description}"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toStartOf="@+id/feed_image"
+                    app:layout_constraintStart_toStartOf="@+id/feed_title"
+                    app:layout_constraintTop_toBottomOf="@+id/feed_title"
+                    tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/feed_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_margin="0.5dp"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{rssFeed.imageUrl}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/roundedImageView"
+                    tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/item_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="8dp"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{rssFeed.rssItemIconUrl}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/feed_body"
+                    app:shapeAppearanceOverlay="@style/roundedImageThumbnailView"
+                    tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+                <TextView
+                    android:id="@+id/feed_info"
+                    style="@style/TextAppearance.AppCompat.Caption"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text='@{rssFeed.rssItemTitle + " · " + rssFeed.prettyDate}'
+                    app:layout_constraintBottom_toBottomOf="@id/item_icon"
+                    app:layout_constraintStart_toEndOf="@+id/item_icon"
+                    app:layout_constraintTop_toTopOf="@+id/item_icon"
+                    tools:text="Sun News &#183; 14 hours ago" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+</layout>

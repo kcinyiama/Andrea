@@ -66,12 +66,18 @@ dependencies {
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2")
 
     // Retrofit for networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+
+    // Glide for images
+    implementation("com.github.bumptech.glide:glide:4.10.0")
+
+    // HTML Parser
+    implementation("org.jsoup:jsoup:1.13.1")
 
     // Coroutines testing
 //    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")

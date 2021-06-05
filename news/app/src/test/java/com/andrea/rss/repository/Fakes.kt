@@ -10,7 +10,7 @@ class FakeRssServiceWrapper(val result: String) : RssServiceWrapper {
 
     override fun getNetworkService(url: String): RssServiceWrapper.RssService {
         return object : RssServiceWrapper.RssService {
-            override suspend fun getFeeds() = result
+            override suspend fun get() = result
         }
     }
 }

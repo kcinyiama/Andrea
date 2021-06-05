@@ -4,13 +4,12 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
-import retrofit2.http.Url
 
 interface RssServiceWrapper {
 
     interface RssService {
         @GET(" ")
-        suspend fun getFeeds(): String
+        suspend fun get(): String
     }
 
     private fun buildService(url: String): RssService {

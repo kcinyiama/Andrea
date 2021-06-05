@@ -3,6 +3,7 @@ package com.andrea.rss.database
 import androidx.room.*
 import com.andrea.rss.domain.RssFeed
 import com.andrea.rss.network.ParsedRssFeed
+import com.andrea.rss.network.ParsedRssItem
 
 /*
  * TODO Basic rss item model. This is used to make the DatabaseRssFeed work.
@@ -16,9 +17,10 @@ data class DatabaseRssItem(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     var name: String,
-    var group: String,
     var url: String,
     var enabled: Int = 1, //item enabled,
+    var group: String,
+    var iconUrl: String? = null,
     /*
      * TODO
      * Used to test fetching of rss feeds via the RssRepository since we do not have to way to
@@ -42,14 +44,14 @@ data class DatabaseRssItem(
 data class DatabaseRssFeed(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
-    var guid: String = "",
-    var title: String = "",
-    var link: String = "",
+    var title: String,
+    var link: String,
+    var description: String,
+    var guid: String,
     @ColumnInfo(name = "publication_date")
-    var publicationDate: String = "",
-    var description: String = "",
+    var publicationDate: String? = null,
     @ColumnInfo(name = "rss_item_id", index = true)
-    var rssItemId: Int = 0
+    var rssItemId: Int = -1
 )
 
 data class DatabaseRssItemWithFeeds(
@@ -61,6 +63,16 @@ data class DatabaseRssItemWithFeeds(
     val feeds: List<DatabaseRssFeed>
 )
 
+// TODO Delete later
+val images = arrayListOf(
+    "https://images.pexels.com/photos/7688377/pexels-photo-7688377.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150&w=150",
+    "https://images.pexels.com/photos/7560130/pexels-photo-7560130.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=150&w=150",
+    "https://images.pexels.com/photos/7987629/pexels-photo-7987629.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150&w=150",
+    "https://images.pexels.com/photos/8096623/pexels-photo-8096623.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
+    "https://images.pexels.com/photos/7750026/pexels-photo-7750026.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
+    "https://images.pexels.com/photos/7175583/pexels-photo-7175583.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150"
+)
+
 fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
     return flatMap {
         it.feeds.map { feed ->
@@ -69,7 +81,11 @@ fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
                 title = feed.title,
                 fullStoryLink = feed.link,
                 publicationDate = feed.publicationDate,
-                description = feed.description
+                description = feed.description,
+                imageUrl = images.shuffled().first(),
+                rssItemIconUrl = it.item.iconUrl,
+                rssItemGroup = it.item.group,
+                rssItemTitle = it.item.name
             )
         }
     }
@@ -78,12 +94,21 @@ fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
 fun List<ParsedRssFeed>.toDatabaseModel(item: DatabaseRssItem): List<DatabaseRssFeed> {
     return map {
         DatabaseRssFeed(
-            guid = it.guid,
-            title = it.title,
-            link = it.link,
+            title = it.title!!,
+            link = it.link!!,
+            description = it.description!!,
+            guid = it.guid!!,
             publicationDate = it.publicationDate,
-            description = it.description,
             rssItemId = item.id
         )
     }
+}
+
+fun ParsedRssItem.toDatabaseModel(): DatabaseRssItem {
+    return DatabaseRssItem(
+        name = title!!,
+        url = link!!,
+        group = group!!,
+        iconUrl = iconUrl
+    )
 }

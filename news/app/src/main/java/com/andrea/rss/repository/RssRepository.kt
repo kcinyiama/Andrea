@@ -4,7 +4,8 @@ import android.util.Log
 import com.andrea.rss.database.*
 import com.andrea.rss.domain.RssFeed
 import com.andrea.rss.network.RssServiceWrapper
-import com.andrea.rss.network.parseRssFeeds
+import com.andrea.rss.network.fetchRssItemInfo
+import com.andrea.rss.network.parseRss
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -46,15 +47,21 @@ class RssRepository private constructor(
                 }
             }
     }
+
+    suspend fun insertRssItem(rssUrl: String) {
+        val rssItem = rssUrl.fetchRssItemInfo(network)
+        Log.e("Repo", "Fetched rss info $rssItem")
+        itemsDao.insert(rssItem.toDatabaseModel())
+    }
+
     private suspend fun fetchAndInsertFeeds(item: DatabaseRssItem) {
         Log.e("Repo", "Fetching for " + item.id)
-        val feeds = network.getNetworkService(item.url).getFeeds().parseRssFeeds()
-        if (feeds.isNotEmpty()) {
+        val rssInfo = network.getNetworkService(item.url).get().parseRss(true)
+        if (rssInfo.rssFeeds.isNotEmpty()) {
             Log.e("Repo", "Inserting for " + item.id)
-            feedsDao.insert(*feeds.toDatabaseModel(item).toTypedArray())
+            feedsDao.insert(*rssInfo.rssFeeds.toDatabaseModel(item).toTypedArray())
         }
         item.fetched = 1
         itemsDao.update(item)
     }
-
 }

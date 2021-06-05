@@ -13,7 +13,6 @@
         android:theme="@style/Theme.AndreaNews">
         <activity
             android:name=".ui.splash.SplashScreenActivity"
-            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
