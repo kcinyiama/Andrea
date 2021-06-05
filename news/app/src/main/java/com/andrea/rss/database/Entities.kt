@@ -16,7 +16,9 @@ data class DatabaseRssItem(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     var name: String,
+    var group: String,
     var url: String,
+    var enabled: Int = 1, //item enabled,
     /*
      * TODO
      * Used to test fetching of rss feeds via the RssRepository since we do not have to way to

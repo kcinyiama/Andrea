@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [DatabaseRssItem::class, DatabaseRssFeed::class],
-    version = 1,
+    version = 1 ,
     exportSchema = false
 )
 abstract class RssDatabase : RoomDatabase() {

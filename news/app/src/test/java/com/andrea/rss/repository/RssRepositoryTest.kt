@@ -18,7 +18,7 @@ class RssRepositoryTest {
             FakeRssItemDao(),
             FakeRssFeedDao()
         )
-        repository.itemsDao.insert(DatabaseRssItem(name = "Rss sports", url = "www.example.com/link1"))
+        repository.itemsDao.insert(DatabaseRssItem(name = "Rss sports",group = "", url = "www.example.com/link1"))
         launch {
             repository.observeFeeds()
         }

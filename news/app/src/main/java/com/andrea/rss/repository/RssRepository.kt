@@ -6,9 +6,7 @@ import com.andrea.rss.domain.RssFeed
 import com.andrea.rss.network.RssServiceWrapper
 import com.andrea.rss.network.parseRssFeeds
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class RssRepository private constructor(
@@ -29,7 +27,10 @@ class RssRepository private constructor(
     }
 
     val allFeeds: Flow<List<RssFeed>> =
-        itemsDao.getItemsWithFeeds().map { it.toDomainModel() }
+        itemsDao.getItemsWithFeeds().map {
+            it.toDomainModel()
+        }
+
 
     suspend fun observeFeeds() {
         // TODO News will be fetched once a day unless it's forced fetch (Subject to change)
@@ -45,7 +46,6 @@ class RssRepository private constructor(
                 }
             }
     }
-
     private suspend fun fetchAndInsertFeeds(item: DatabaseRssItem) {
         Log.e("Repo", "Fetching for " + item.id)
         val feeds = network.getNetworkService(item.url).getFeeds().parseRssFeeds()
@@ -56,4 +56,5 @@ class RssRepository private constructor(
         item.fetched = 1
         itemsDao.update(item)
     }
+
 }

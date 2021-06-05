@@ -24,13 +24,13 @@ interface RssItemDao {
 
     @Query("SELECT * FROM rss_item WHERE url = :url")
     fun getItemByUrl(url: String): DatabaseRssItem?
-
     /*
      * This method requires Room to run two queries so Transaction
      * is added here to ensure the operation is performed atomically
      */
+
     @Transaction
-    @Query("SELECT * FROM rss_item")
+    @Query("SELECT * FROM rss_item WHERE enabled = 1")
     fun getItemsWithFeeds(): Flow<List<DatabaseRssItemWithFeeds>>
 }
 

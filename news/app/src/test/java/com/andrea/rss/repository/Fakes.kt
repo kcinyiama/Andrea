@@ -34,7 +34,6 @@ class FakeRssItemDao : RssItemDao {
     override fun geItemsByFetchStatus(): Flow<List<DatabaseRssItem>> = flow {
         val items = rssItemChannel.receive()
         rssItemChannel.send(items)
-
         val result = items.filter { it.fetched == 0 }
         emit(result)
     }

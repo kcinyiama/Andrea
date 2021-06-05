@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MainViewModel internal constructor(private val rssRepository: RssRepository): ViewModel() {
+class MainViewModel internal constructor(private val rssRepository: RssRepository) : ViewModel() {
 
     init {
         viewModelScope.launch {
@@ -38,7 +38,18 @@ class MainViewModel internal constructor(private val rssRepository: RssRepositor
                 rssRepository.itemsDao.insert(
                     DatabaseRssItem(
                         name = "Sun World News",
+                        group = "thesundaily",
                         url = "https://www.thesundaily.my/rss/world"
+                    ),
+                    DatabaseRssItem(
+                        name = "Family news",
+                        group = "cbn",
+                        url = "https://www1.cbn.com/rss-cbn-news-health.xml"
+                    ),
+                    DatabaseRssItem(
+                        name = "Travel news",
+                        group = "thewest",
+                        url = "https://thewest.com.au/travel/rss"
                     )
                 )
             }
