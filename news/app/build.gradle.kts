@@ -15,17 +15,26 @@ val keystorePassword: String? by project
 val aliasKey: String? by project
 val passwordKey: String? by project
 val googlePlayKeyFile: String? by project
-val branch: String? by project
+val isDevelopBranch: String? by project
+
+// Versioning properties
+val versionThreshold = 99
+val defaultVersion = "0.0.0"
+val appVersion = "app.version"
+val gradleProps = "gradle.properties"
 
 android {
     compileSdk = 30
     buildToolsVersion = "30.0.3"
 
+    val parts = computeVersionParts()
+
     defaultConfig {
         applicationId = "com.andrea.rss"
         minSdk = 21
         targetSdk = 30
-
+        versionName = parts.first
+        versionCode = parts.second
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -129,34 +138,30 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 
-val versionThreshold = 99
-val defaultVersion = "0.0.0"
-val appVersion = "app.version"
-val gradleProps = "gradle.properties"
+fun computeVersionParts(): Pair<String, Int> {
+    val parts = (project.properties[appVersion] ?: defaultVersion).toString().split(".")
+    var major = parts[0].toInt()
+    var minor = parts[1].toInt()
+    var patch = parts[2].toInt()
 
-val updateVersion = tasks.register("updateVersion") {
-    description = "Increments the version name and the version code"
-    doLast {
-        val parts = (project.properties[appVersion] ?: defaultVersion).toString().split(".")
-        var major = parts[0].toInt()
-        var minor = parts[1].toInt()
-        var patch = parts[2].toInt()
-
-        if (patch >= versionThreshold) {
-            patch = 1
-            if (minor >= versionThreshold) {
-                minor = 1
-                ++major
-            } else {
-                ++minor
-            }
+    if (patch >= versionThreshold) {
+        patch = 1
+        if (minor >= versionThreshold) {
+            minor = 1
+            ++major
         } else {
-            ++patch
+            ++minor
         }
-        android.defaultConfig.versionName = "$major.$minor.$patch"
-        android.defaultConfig.versionCode = (major * 1000) + (minor * 100) + (patch * 10)
-        saveVersion("$major.$minor.$patch")
+    } else {
+        ++patch
     }
+    val versionName = "$major.$minor.$patch"
+
+    when (isDevelopBranch.toBoolean()) {
+        true -> saveVersion(versionName)
+    }
+
+    return Pair(versionName, (major * 1000) + (minor * 100) + (patch * 10))
 }
 
 fun saveVersion(version: String) {

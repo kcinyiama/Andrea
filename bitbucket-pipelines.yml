@@ -48,7 +48,8 @@ pipelines:
                         -PaliasKey=$KEYSTORE_KEY_ALIAS
                         -PpasswordKey=$KEYSTORE_KEY_PASSWORD
                         -PgooglePlayKeyFile=../../keys/$GOOGLE_PLAY_API_KEY
-                        clean updateVersion :app:publishReleaseBundle"
+                        -PisDevelopBranch=true
+                        clean :app:publishReleaseBundle"
             - echo Performing version update
             - git add gradle.properties
             - git commit -m "[skip ci] Updating gradle.properties with the latest version"
