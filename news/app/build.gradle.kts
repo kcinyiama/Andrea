@@ -1,8 +1,21 @@
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+import java.util.Properties
+import java.io.*
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("com.github.triplet.play").version("3.4.0-agp7.0")
 }
+
+// Values passed as parameters from Bitbucket pipelines
+val keystoreFile: String? by project
+val keystorePassword: String? by project
+val aliasKey: String? by project
+val passwordKey: String? by project
+val googlePlayKeyFile: String? by project
+val branch: String? by project
 
 android {
     compileSdk = 30
@@ -12,19 +25,45 @@ android {
         applicationId = "com.andrea.rss"
         minSdk = 21
         targetSdk = 30
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            keyAlias = "key0"
+            keyPassword = "x*V#xE0l0&&p"
+            storeFile = file("../keys/debug.keystore")
+            storePassword = "x*V#xE0l0&&p"
+        }
+        create("release") {
+            keyAlias = aliasKey
+            keyPassword = passwordKey
+            storeFile = file(keystoreFile ?: "oblivion")
+            storePassword = keystorePassword
+        }
+    }
+
     buildTypes {
         release {
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
+            isDebuggable = false
+        }
+        debug {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
         }
     }
     buildFeatures {
@@ -88,4 +127,52 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.2")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+}
+
+val versionThreshold = 99
+val defaultVersion = "0.0.0"
+val appVersion = "app.version"
+val gradleProps = "gradle.properties"
+
+val updateVersion = tasks.register("updateVersion") {
+    description = "Increments the version name and the version code"
+    doLast {
+        val parts = (project.properties[appVersion] ?: defaultVersion).toString().split(".")
+        var major = parts[0].toInt()
+        var minor = parts[1].toInt()
+        var patch = parts[2].toInt()
+
+        if (patch >= versionThreshold) {
+            patch = 1
+            if (minor >= versionThreshold) {
+                minor = 1
+                ++major
+            } else {
+                ++minor
+            }
+        } else {
+            ++patch
+        }
+        android.defaultConfig.versionName = "$major.$minor.$patch"
+        android.defaultConfig.versionCode = (major * 1000) + (minor * 100) + (patch * 10)
+        saveVersion("$major.$minor.$patch")
+    }
+}
+
+fun saveVersion(version: String) {
+    val fis = FileInputStream(gradleProps)
+    val props = Properties().apply { load(fis) }
+    fis.close()
+
+    val fos = FileOutputStream(gradleProps)
+    props.setProperty(appVersion, version)
+    props.store(fos, null)
+    fos.close()
+}
+
+play {
+    serviceAccountCredentials.set(file(googlePlayKeyFile ?: "oblivion"))
+    defaultToAppBundles.set(true)
+    track.set("internal")
+    releaseStatus.set(ReleaseStatus.DRAFT) // TODO Remove when app is no longer in DRAFT state
 }

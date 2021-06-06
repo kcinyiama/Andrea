@@ -1,34 +1,79 @@
-# This is an example Starter pipeline configuration
-# Use a skeleton to build, test and deploy using manual and parallel steps
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
-image: atlassian/default-image:2
+image: androidsdk/android-30
 
 pipelines:
   default:
     - parallel:
+        - step:
+            name: Running code analysis
+            caches:
+              - gradle
+            script:
+              - cd news
+              - export GRADLE_OPTS='-Dorg.gradle.daemon=false'
+              - "./gradlew lint"
+            artifacts:
+              - app/build/outputs/**
+              - app/build/reports/**
+        - step:
+            name: Running tests
+            caches:
+              - gradle
+            script:
+              - cd news
+              - export GRADLE_OPTS='-Dorg.gradle.daemon=false'
+              - "./gradlew test"
+            artifacts:
+              - app/build/outputs/**
+              - app/build/reports/**
+  branches:
+    develop:
       - step:
-          name: 'Build and Test'
+          name: Creating signing keys
           script:
-            - echo "Your build and test goes here..."
+            - mkdir keys
+            - echo $KEYSTORE_FILE_BASE64 | base64 --decode > keys/$KEYSTORE_FILE
+            - echo $GOOGLE_PLAY_API_KEY_BASE64 | base64 --decode > keys/$GOOGLE_PLAY_API_KEY
+          artifacts:
+            - keys/**
       - step:
-          name: 'Lint'
+          name: Deploying to internal track
+          deployment: Internal
+          caches:
+            - gradle
           script:
-            - echo "Your linting goes here..."
+            - cd news
+            - export GRADLE_OPTS='-Dorg.gradle.daemon=false'
+            - "./gradlew  -PkeystoreFile=../../keys/$KEYSTORE_FILE
+                        -PkeystorePassword=$KEYSTORE_PASSWORD
+                        -PaliasKey=$KEYSTORE_KEY_ALIAS
+                        -PpasswordKey=$KEYSTORE_KEY_PASSWORD
+                        -PgooglePlayKeyFile=../../keys/$GOOGLE_PLAY_API_KEY
+                        clean updateVersion :app:publishReleaseBundle"
+            - echo Performing version update
+            - git add gradle.properties
+            - git commit -m "[skip ci] Updating gradle.properties with the latest version"
+            - git push
+          artifacts:
+            - app/build/outputs/
+    master:
       - step:
-          name: 'Security scan'
+          name: Tagging stable version
           script:
-            - echo "Your security scan goes here..."
-
-    # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
-    - step:
-        name: 'Deployment to Staging'
-        deployment: staging
-        script:
-          - echo "Your deployment to staging script goes here..."
-    - step:
-        name: 'Deployment to Production'
-        deployment: production
-        trigger: 'manual'
-        script:
-          - echo "Your deployment to production script goes here..."
+            - git tag -am "Updating tag for release build ${BITBUCKET_BUILD_NUMBER}" app-release-${BITBUCKET_BUILD_NUMBER}
+            - git push origin app-release-${BITBUCKET_BUILD_NUMBER}
+      - step:
+          name: Deploy to production
+          deployment: Production
+          caches:
+            - gradle
+          trigger: manual
+          script:
+            - cd news
+            - export GRADLE_OPTS='-Dorg.gradle.daemon=false'
+            - "./gradlew  -PkeystoreFile=../../keys/$KEYSTORE_FILE
+                          -PkeystorePassword=$KEYSTORE_PASSWORD
+                          -PaliasKey=$KEYSTORE_KEY_ALIAS
+                          -PpasswordKey=$KEYSTORE_KEY_PASSWORD
+                          -PgooglePlayKeyFile=../../keys/$GOOGLE_PLAY_API_KEY
+                          promoteReleaseArtifact --from-track internal
+                          --promote-track production --release-status completed"
