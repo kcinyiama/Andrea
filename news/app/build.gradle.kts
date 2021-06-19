@@ -7,6 +7,8 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("com.github.triplet.play").version("3.4.0-agp7.0")
+    id("androidx.navigation.safeargs")
+
 }
 
 // Values passed as parameters from Bitbucket pipelines
@@ -110,6 +112,12 @@ dependencies {
     // Room for database
     implementation("androidx.room:room-ktx:2.3.0")
     implementation("androidx.room:room-runtime:2.3.0")
+   
+
+    // Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.3.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.3.5")
+
     kapt("androidx.room:room-compiler:2.3.0")
 
     // Coroutines
@@ -123,6 +131,7 @@ dependencies {
 
     // Glide for images
     implementation("com.github.bumptech.glide:glide:4.10.0")
+
 
     // HTML Parser
     implementation("org.jsoup:jsoup:1.13.1")

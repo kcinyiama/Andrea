@@ -91,6 +91,21 @@ fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
     }
 }
 
+
+fun DatabaseRssFeed.toModel():RssFeed {
+    return RssFeed(
+        id = id,
+        title = title,
+        fullStoryLink = link,
+        publicationDate = publicationDate,
+        description = description,
+        imageUrl =  images.shuffled().first(),
+        rssItemIconUrl = "https://images.pexels.com/photos/7175583/pexels-photo-7175583.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
+        rssItemGroup = "sunday",
+        rssItemTitle = "Punch"
+    )
+}
+
 fun List<ParsedRssFeed>.toDatabaseModel(item: DatabaseRssItem): List<DatabaseRssFeed> {
     return map {
         DatabaseRssFeed(

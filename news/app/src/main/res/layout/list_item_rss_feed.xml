@@ -4,13 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="rssFeed"
             type="com.andrea.rss.domain.RssFeed" />
+        <variable
+            name="clickListener"
+            type="com.andrea.rss.ui.main.RssFeedAdapter.FeedListener" />
     </data>
 
     <FrameLayout
+        android:onClick="@{()->clickListener.feedDetail(rssFeed)}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

@@ -2,4 +2,7 @@
     <string name="app_name">Andrea News</string>
     <string name="my_feeds">My feeds</string>
     <string name="about">About</string>
+    <string name="titlle_text">Text consisting of jumbled fragments of Latin words.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

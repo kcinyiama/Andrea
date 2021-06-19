@@ -31,7 +31,12 @@ class RssRepository private constructor(
         itemsDao.getItemsWithFeeds().map {
             it.toDomainModel()
         }
-
+    
+     fun getFeed(id:Int) : Flow<RssFeed?>{
+        return feedsDao.getFeedById(id).map {
+            it?.toModel()
+        }
+    }
 
     suspend fun observeFeeds() {
         // TODO News will be fetched once a day unless it's forced fetch (Subject to change)
