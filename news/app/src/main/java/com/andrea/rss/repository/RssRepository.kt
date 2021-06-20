@@ -2,13 +2,13 @@ package com.andrea.rss.repository
 
 import android.util.Log
 import com.andrea.rss.database.*
-import com.andrea.rss.domain.RssFeed
 import com.andrea.rss.network.RssServiceWrapper
-import com.andrea.rss.network.fetchRssItemInfo
-import com.andrea.rss.network.parseRss
+import com.andrea.rss.parser.*
+import com.andrea.rss.util.hostAndPath
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RssRepository private constructor(
     private val network: RssServiceWrapper,
@@ -27,46 +27,84 @@ class RssRepository private constructor(
             }
     }
 
-    val allFeeds: Flow<List<RssFeed>> =
-        itemsDao.getItemsWithFeeds().map {
-            it.toDomainModel()
-        }
-    
-     fun getFeed(id:Int) : Flow<RssFeed?>{
-        return feedsDao.getFeedById(id).map {
-            it?.toModel()
-        }
-    }
+    val allFeeds = itemsDao.getItemsWithFeeds().map { it.toDomainModel() }
+
+    val allItems = itemsDao.getItems().map { it.toDomainModel() }
+
+    fun getFeed(id: Int) = itemsDao.getFeedWithItemById(id).map { it.toDomainModel() }
 
     suspend fun observeFeeds() {
         // TODO News will be fetched once a day unless it's forced fetch (Subject to change)
         itemsDao.geItemsByFetchStatus()
-            //.distinctUntilChanged()
+            .distinctUntilChanged()
             .collect {
                 coroutineScope {
                     it.forEach { item ->
-                        launch {
-                            fetchAndInsertFeeds(item)
+                        withContext(Dispatchers.IO) {
+                            val rssInfo = network.getNetworkService(item.url).get().parseRss()
+                            saveRssInfo(dbItem = item, parsedInfo = rssInfo)
                         }
                     }
                 }
             }
     }
 
-    suspend fun insertRssItem(rssUrl: String) {
-        val rssItem = rssUrl.fetchRssItemInfo(network)
-        Log.e("Repo", "Fetched rss info $rssItem")
-        itemsDao.insert(rssItem.toDatabaseModel())
+    suspend fun validateRssUrl(url: String, block: (bool: Boolean) -> Unit) {
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                try {
+                    val rssItem = url.fetchRssItemInfo(network)
+                    val hp = url.hostAndPath()
+                    val rssInfo = network.getNetworkService(hp.first).get(hp.second).parseRss()
+
+                    when (rssInfo.rssFeeds.isNotEmpty()) {
+                        true -> {
+                            block(true)
+                            saveRssInfo(parsedItem = rssItem, parsedInfo = rssInfo)
+                        }
+                        else -> block(false)
+                    }
+                    return@withContext
+                } catch (e: Exception) {
+                    Log.e("Repo", e.message!!)
+                }
+                block(false)
+            }
+        }
     }
 
-    private suspend fun fetchAndInsertFeeds(item: DatabaseRssItem) {
-        Log.e("Repo", "Fetching for " + item.id)
-        val rssInfo = network.getNetworkService(item.url).get().parseRss(true)
-        if (rssInfo.rssFeeds.isNotEmpty()) {
-            Log.e("Repo", "Inserting for " + item.id)
-            feedsDao.insert(*rssInfo.rssFeeds.toDatabaseModel(item).toTypedArray())
+    suspend fun enableOrDisableItem(id: Int) {
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                itemsDao.getItemById(id).take(1).collect { item ->
+                    item?.let {
+                        it.enabled = if (it.enabled == 0) 1 else 0
+                        itemsDao.update(it)
+                    }
+                }
+            }
         }
-        item.fetched = 1
-        itemsDao.update(item)
+    }
+
+    suspend fun deleteItems(rssIds: List<Int>) {
+        coroutineScope {
+            withContext(Dispatchers.IO) {
+                itemsDao.delete(rssIds)
+            }
+        }
+    }
+
+    private suspend fun saveRssInfo(
+        parsedItem: ParsedRssItem? = null,
+        dbItem: DatabaseRssItem? = null,
+        parsedInfo: ParseRss
+    ) {
+        var databaseItem = dbItem ?: parsedItem!!.toDatabaseModel()
+        parsedInfo.rssItem?.let {
+            databaseItem.name = it.title ?: databaseItem.name
+        }
+        databaseItem.fetched = 1
+        databaseItem = itemsDao.insertAndGet(databaseItem)
+        feedsDao.insert(*parsedInfo.rssFeeds.toDatabaseModel(databaseItem).toTypedArray())
     }
 }

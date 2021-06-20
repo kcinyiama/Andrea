@@ -16,5 +16,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="grey">#EAE9E9</color>
+    <color name="background">@color/white</color>
+    <color name="transparent_dark">#54000000</color>
     <color name="card_stroke_colour">#F4F4F4</color>
+    <color name="action_mode_selection">#36004BA0</color>
 </resources>

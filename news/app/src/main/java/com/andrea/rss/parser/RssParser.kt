@@ -1,13 +1,11 @@
-package com.andrea.rss.network
+package com.andrea.rss.parser
 
-import android.util.Log
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import org.xml.sax.Attributes
 import org.xml.sax.InputSource
 import org.xml.sax.helpers.DefaultHandler
 import java.io.ByteArrayInputStream
-import java.net.URI
+import java.util.*
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 
@@ -22,22 +20,22 @@ private fun createSAXParserFactory() = SAXParserFactory.newInstance().apply {
     }
 }
 
-private fun createRssHandler(xmlString: String, parseRssItem: Boolean) =
-    RssFeedHandler(parseRssItem).apply {
+private fun createRssHandler(xmlString: String) =
+    RssFeedHandler().apply {
         runCatching {
             val parser = createSAXParserFactory().newSAXParser()
             parser.parse(InputSource(ByteArrayInputStream(xmlString.toByteArray())), this)
         }
     }
 
-private class RssFeedHandler(private val parseRssItem: Boolean) : DefaultHandler() {
+private class RssFeedHandler : DefaultHandler() {
     companion object {
         const val CHANNEL = "channel"
         const val ITEM = "item"
     }
 
-    private var processingTag: TagState = ProcessingUnknown
     private lateinit var currentTag: String
+    private var feedTags = ArrayDeque<Node>()
 
     private lateinit var tempItem: ParsedRssItem
     private lateinit var tempFeed: ParsedRssFeed
@@ -45,23 +43,21 @@ private class RssFeedHandler(private val parseRssItem: Boolean) : DefaultHandler
     private val feeds = mutableListOf<ParsedRssFeed>()
 
     override fun characters(ch: CharArray, start: Int, length: Int) {
-        when (processingTag) {
-            ProcessingChannel -> {
+        when (feedTags.peek()?.parent?.name) {
+            CHANNEL -> {
                 buildChars(ch, start, length) {
                     processChannelData(it, ChannelTag.toEnum(currentTag))
                 }
             }
-            ProcessingItem -> {
+            ITEM -> {
                 buildChars(ch, start, length) {
                     processItemData(it, ItemTag.toEnum(currentTag))
                 }
             }
-            ProcessingUnknown -> { /* Nothing to process */
-            }
         }
     }
 
-    private fun buildChars(ch: CharArray, start: Int, length: Int, block: (str: String) -> Unit) {
+    private inline fun buildChars(ch: CharArray, start: Int, length: Int, block: (str: String) -> Unit) {
         val value = StringBuilder().append(ch, start, length).toString().trim()
         if (value.isNotEmpty()) {
             block(value)
@@ -96,42 +92,42 @@ private class RssFeedHandler(private val parseRssItem: Boolean) : DefaultHandler
         qName: String,
         attributes: Attributes
     ) {
-        processingTag = when (qName) {
-            CHANNEL -> {
-                when (parseRssItem) {
-                    true -> {
-                        tempItem = ParsedRssItem()
-                        ProcessingChannel
-                    }
-                    false -> ProcessingUnknown
-                }
-            }
-            ITEM -> {
-                tempFeed = ParsedRssFeed()
-                ProcessingItem
-            }
-            else -> {
-                processingTag
-            }
+        feedTags.apply {
+            if (size == 0) push(Node(qName, null)) else push(Node(qName, peek()))
+        }
+
+        when (qName) {
+            CHANNEL -> tempItem = ParsedRssItem()
+            ITEM -> tempFeed = ParsedRssFeed()
         }
         currentTag = qName
     }
 
     override fun endElement(uri: String, localName: String, qName: String) {
+        feedTags.pop()
+
         when (qName) {
             CHANNEL -> {
-                if (parseRssItem) {
-                    if (!tempItem.isValid()) {
-                        throw RssParserException("Parsed rss item is not valid: $tempItem")
-                    }
+                if (!tempItem.isValid()) {
+                    throw RssParserException("Parsed rss item is not valid: $tempItem")
                 }
             }
             ITEM -> {
                 if (tempFeed.isValid()) {
+                    extractImages()
                     feeds += tempFeed
                 }
             }
         }
+    }
+
+    private fun extractImages() {
+        val images = mutableListOf<String>()
+        val elements = Jsoup.parse(tempFeed.description).getElementsByTag("img")
+        for (tag in elements) {
+            tag.attr("src").takeIf { it.isNotEmpty() }?.let { images.add(it) }
+        }
+        tempFeed.imageUrls = images
     }
 
     fun getRss(): ParseRss {
@@ -140,41 +136,7 @@ private class RssFeedHandler(private val parseRssItem: Boolean) : DefaultHandler
     }
 }
 
-internal fun String.parseRss(parseRssItem: Boolean = false): ParseRss = when (isNullOrEmpty()) {
-    false -> createRssHandler(this, parseRssItem).getRss()
+internal fun String.parseRss(): ParseRss = when (isNullOrEmpty()) {
+    false -> createRssHandler(this).getRss()
     else -> throw RssParserException("String to parse cannot be null or empty")
-}
-
-internal suspend fun String.fetchRssItemInfo(service: RssServiceWrapper = DefaultRssServiceWrapper()): ParsedRssItem {
-    val item = ParsedRssItem()
-    runCatching {
-        val uri = URI(this)
-        val host = cleanHost(uri)
-        val scheme = uri.scheme ?: "http"
-
-        val head = Jsoup.parse(service.getNetworkService("$scheme://$host").get()).head()
-        item.group = host.replace(matchWWW, "")
-        item.title = item.group // Use the group as the title. Will be replaced when fetching feeds for the first time
-        item.iconUrl = getPreferredIconUrl(head)
-        item.link = this
-    }.onFailure {
-        Log.d("RssParser", "Error while fetching rss item info: ${it.message}")
-    }
-    return item
-}
-
-private fun cleanHost(uri: URI): String {
-    val host = uri.host ?: uri.path
-    val slash = host.indexOf('/')
-    return if (slash != -1) host.substring(0, slash) else host
-}
-
-private val matchWWW = "^(www\\d+.|www.)?".toRegex()
-
-private fun getPreferredIconUrl(headEl: Element): String {
-    var icons = headEl.getElementsByAttributeValue("rel", "shortcut icon")
-    if (icons.isEmpty()) {
-        icons = headEl.getElementsByAttributeValueContaining("rel", "icon")
-    }
-    return if (icons.isNotEmpty()) icons.first().attr("href") else ""
 }

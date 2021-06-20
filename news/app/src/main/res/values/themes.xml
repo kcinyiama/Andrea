@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.AndreaNews" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
@@ -13,5 +13,33 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <!-- Customize your theme here. -->
+        <item name="actionModeStyle">@style/Theme.AndreaNews.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <!-- Action mode theme -->
+    <style name="Theme.AndreaNews.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/primaryColor</item>
+        <item name="closeItemLayout">@layout/abc_action_mode_close_item</item>
+        <item name="titleTextStyle">@style/Theme.AndreaNews.ActionMode.TextStyle</item>
+    </style>
+
+    <style name="Theme.AndreaNews.ActionMode.TextStyle" parent="TextAppearance.AppCompat.Widget.ActionMode.Title">
+        <item name="android:textColor">@color/primaryTextColor</item>
+    </style>
+
+    <!-- Feed detail theme -->
+    <style name="Theme.AndreaNews.Transparent.ActionBar" parent="Theme.AndreaNews">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
+    <!-- Collapsing toolbar theme -->
+    <style name="TextAppearance.App.CollapsingToolbar.Expanded" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">35sp</item>
+    </style>
+
+    <style name="TextAppearance.App.CollapsingToolbar.Collapsed" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="android:textColor">?attr/colorOnPrimary</item>
     </style>
 </resources>

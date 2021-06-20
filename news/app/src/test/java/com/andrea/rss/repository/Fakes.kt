@@ -5,12 +5,14 @@ import com.andrea.rss.network.RssServiceWrapper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 
 class FakeRssServiceWrapper(val result: String) : RssServiceWrapper {
 
     override fun getNetworkService(url: String): RssServiceWrapper.RssService {
         return object : RssServiceWrapper.RssService {
-            override suspend fun get() = result
+            override suspend fun get(path: String) = result
         }
     }
 }
@@ -27,8 +29,8 @@ class FakeRssItemDao : RssItemDao {
         rssItemChannel.send(feeds.toList().intersect(items).toList())
     }
 
-    override fun getItems(): Flow<List<DatabaseRssItem>> {
-        TODO("Not yet implemented")
+    override fun getItems(): Flow<List<DatabaseRssItem>> = flow {
+        // Nothing to emit
     }
 
     override fun geItemsByFetchStatus(): Flow<List<DatabaseRssItem>> = flow {
@@ -42,12 +44,22 @@ class FakeRssItemDao : RssItemDao {
         TODO("Not yet implemented")
     }
 
+    override fun getLastInsertedItem(): DatabaseRssItem = runBlocking {
+        val items = rssItemChannel.receive()
+        rssItemChannel.send(items)
+        return@runBlocking items.last()
+    }
+
     override fun getItemByUrl(url: String): DatabaseRssItem? {
         TODO("Not yet implemented")
     }
 
     override fun getItemsWithFeeds(): Flow<List<DatabaseRssItemWithFeeds>> = flow {
         // Nothing to emit
+    }
+
+    override suspend fun delete(ids: List<Int>) {
+        TODO("Not yet implemented")
     }
 }
 

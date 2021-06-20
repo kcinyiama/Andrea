@@ -4,18 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="rssFeed"
             type="com.andrea.rss.domain.RssFeed" />
+
         <variable
-            name="clickListener"
-            type="com.andrea.rss.ui.main.RssFeedAdapter.FeedListener" />
+            name="viewModel"
+            type="com.andrea.rss.ui.main.MainViewModel" />
     </data>
 
     <FrameLayout
-        android:onClick="@{()->clickListener.feedDetail(rssFeed)}"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:onClick="@{(view) -> viewModel.startNavigationToDetail(rssFeed.id)}">
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -52,7 +54,7 @@
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
                     android:maxLines="3"
-                    android:text="@{rssFeed.description}"
+                    android:text="@{rssFeed.headline}"
                     android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@+id/feed_image"
                     app:layout_constraintStart_toStartOf="@+id/feed_title"
@@ -65,7 +67,7 @@
                     android:layout_height="100dp"
                     android:layout_margin="0.5dp"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{rssFeed.imageUrl}"
+                    app:imageUrl="@{rssFeed.imageUrls}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:shapeAppearanceOverlay="@style/roundedImageView"
@@ -77,7 +79,7 @@
                     android:layout_height="20dp"
                     android:layout_marginTop="8dp"
                     android:scaleType="centerCrop"
-                    app:imageUrl="@{rssFeed.rssItemIconUrl}"
+                    app:imageUrl="@{rssFeed.rssItem.iconUrl}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/feed_body"
                     app:shapeAppearanceOverlay="@style/roundedImageThumbnailView"
@@ -89,8 +91,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text='@{rssFeed.rssItemTitle + " · " + rssFeed.prettyDate}'
+                    android:text='@{rssFeed.rssItem.name + " · " + rssFeed.prettyDate}'
                     app:layout_constraintBottom_toBottomOf="@id/item_icon"
+                    app:layout_constraintEnd_toEndOf="@+id/feed_body"
                     app:layout_constraintStart_toEndOf="@+id/item_icon"
                     app:layout_constraintTop_toTopOf="@+id/item_icon"
                     tools:text="Sun News &#183; 14 hours ago" />

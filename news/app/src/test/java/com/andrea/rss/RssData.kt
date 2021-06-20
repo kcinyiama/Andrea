@@ -6,6 +6,11 @@ val RSS_SAMPLE_DATA = """
             <link>https://www.example.com/world</link>
             <title>World</title>
             <description>Latest world news from Example</description>
+            <image>
+                <url>https://thewest.com.au/static/media/googlenews-logo-250px.png</url>
+                <title>The West Australian</title>
+                <link>https://thewest.com.au/travel</link>
+            </image>
             <atom:link type="application/rss+xml" rel="self" href="https://www.example.com/rss/world"/>
             <item>
                 <title>Headline 1</title>
@@ -26,7 +31,7 @@ val RSS_SAMPLE_DATA = """
                 <link>https://www.example.com/fullstory/3</link>
                 <guid isPermaLink="false">3</guid>
                 <pubDate>Sun, 23 May 2021 13:29:40 GMT</pubDate>
-                <description readingtime="45">Lorem ipsum dolor sit amet, consectetur adipiscing elit</description>
+                <description readingtime="45">&lt;img src="https://www.example.com/2.jpg"&gt;&lt;img src="https://www.example.com/3.jpg"&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit</description>
             </item>
         </channel>
     </rss>

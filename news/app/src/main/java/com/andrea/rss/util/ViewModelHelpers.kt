@@ -6,22 +6,38 @@ import androidx.lifecycle.ViewModelProvider
 import com.andrea.rss.database.getDatabase
 import com.andrea.rss.network.DefaultRssServiceWrapper
 import com.andrea.rss.repository.RssRepository
+import com.andrea.rss.ui.menu.rss.RssItemsViewModel
 import com.andrea.rss.ui.main.MainViewModel
-import com.andrea.rss.ui.newsdetail.NewsDetailViewModel
+import com.andrea.rss.ui.feeddetail.FeedDetailViewModel
+import com.andrea.rss.ui.menu.rss.NewRssItemViewModel
 
-class MainViewModelFactory(
+class AppViewModelFactory(
     private val context: Context
 ) : ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         val database = getDatabase(context.applicationContext)
-        val repository = RssRepository.getInstance(DefaultRssServiceWrapper(), database.itemsDao, database.feedsDao)
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            return MainViewModel(repository) as T
-        }else if(modelClass.isAssignableFrom(NewsDetailViewModel::class.java)){
-            return NewsDetailViewModel(repository) as T
+        val repository = RssRepository.getInstance(
+            DefaultRssServiceWrapper(),
+            database.itemsDao,
+            database.feedsDao
+        )
+
+        return when {
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
+                MainViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(RssItemsViewModel::class.java) -> {
+                RssItemsViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(NewRssItemViewModel::class.java) -> {
+                NewRssItemViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(FeedDetailViewModel::class.java) -> {
+                FeedDetailViewModel(repository) as T
+            }
+            else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

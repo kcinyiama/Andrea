@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface RssItemDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(vararg item: DatabaseRssItem)
 
     @Update
@@ -22,16 +22,33 @@ interface RssItemDao {
     @Query("SELECT * FROM rss_item WHERE id = :id")
     fun getItemById(id: Int): Flow<DatabaseRssItem?>
 
+    @Query("SELECT * FROM rss_item ORDER BY id DESC LIMIT 1")
+    fun getLastInsertedItem(): DatabaseRssItem
+
     @Query("SELECT * FROM rss_item WHERE url = :url")
     fun getItemByUrl(url: String): DatabaseRssItem?
+
     /*
      * This method requires Room to run two queries so Transaction
      * is added here to ensure the operation is performed atomically
      */
-
     @Transaction
     @Query("SELECT * FROM rss_item WHERE enabled = 1")
     fun getItemsWithFeeds(): Flow<List<DatabaseRssItemWithFeeds>>
+
+    @Transaction
+    @Query("SELECT * FROM rss_feed WHERE id = :feedId")
+    fun getFeedWithItemById(feedId: Int): Flow<DatabaseFeedWithItem>
+
+    @Transaction
+    @Query("DELETE FROM rss_item WHERE id IN (:ids)")
+    suspend fun delete(ids: List<Int>)
+}
+
+@Transaction
+suspend fun RssItemDao.insertAndGet(item: DatabaseRssItem): DatabaseRssItem {
+    insert(item)
+    return getLastInsertedItem()
 }
 
 @Dao

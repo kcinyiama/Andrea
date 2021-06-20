@@ -1,5 +1,6 @@
 package com.andrea.rss.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,16 +11,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.andrea.rss.R
 import com.andrea.rss.databinding.FragmentRssFeedListBinding
-import com.andrea.rss.util.MainViewModelFactory
+import com.andrea.rss.ui.feeddetail.FeedDetailActivity
+import com.andrea.rss.util.AppViewModelFactory
 
 
 class MainFragment : Fragment() {
     private val viewModel: MainViewModel by viewModels {
-        MainViewModelFactory(requireActivity())
-    }
-
-    companion object {
-        fun newInstance() = MainFragment()
+        AppViewModelFactory(requireActivity())
     }
 
     override fun onCreateView(
@@ -29,34 +27,35 @@ class MainFragment : Fragment() {
         val binding = FragmentRssFeedListBinding.inflate(inflater, container, false)
         context ?: return binding.root
 
-        val adapter = RssFeedAdapter(RssFeedAdapter.FeedListener { feed ->
-            findNavController().navigate(
-                MainFragmentDirections.actionMainFragmentToNewsDetailFragment(
-                    feed.id
-                ),
-            )
-            // TODO: Logs will be removed later on
-            Log.i("id", feed.toString())
-        }
-        )
+        val adapter = RssFeedAdapter(viewModel)
 
         binding.feedList.adapter = adapter
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         viewModel.allFeeds.observe(viewLifecycleOwner) {
-            it.forEach { rssFeed ->
-
-                // TODO: Logs will be removed later on
-                Log.i("feed", rssFeed.toString())
-            }
             adapter.submitList(it)
+        }
 
+        viewModel.navigationToDetail.observe(viewLifecycleOwner) {
+            it?.let { feedId ->
+                Intent(activity, FeedDetailActivity::class.java).apply {
+                    putExtra("feedId", feedId)
+                    startActivity(this)
+                }
+                viewModel.doneNavigating()
+            }
         }
 
         binding.topAppBar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.item -> true
-                R.id.about -> true
+                R.id.item -> {
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToRssItemsFragment())
+                    true
+                }
+                R.id.about -> {
+                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToAboutFragment())
+                    true
+                }
                 else -> false
             }
         }

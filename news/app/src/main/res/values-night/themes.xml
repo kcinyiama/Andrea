@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Theme.AndreaNews" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
@@ -9,5 +9,11 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/primaryDarkColor</item>
         <!-- Customize your theme here. -->
+        <item name="actionModeStyle">@style/Theme.AndreaNews.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <style name="Theme.AndreaNews.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">@color/primaryColor</item>
     </style>
 </resources>

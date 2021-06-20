@@ -1,22 +1,25 @@
 package com.andrea.rss.domain
 
 import android.text.format.DateUtils
-import com.andrea.rss.util.smartTruncate
+import androidx.core.text.HtmlCompat
 import com.andrea.rss.util.toMillis
 
 data class RssFeed(
     val id: Int,
     val title: String,
-    val imageUrl: String?,
+    val imageUrls: List<String>,
     val fullStoryLink: String,
     val publicationDate: String?,
     val description: String,
-    val rssItemIconUrl: String?,
-    val rssItemGroup: String,
-    val rssItemTitle: String) {
+    val rssItem: RssItem
+) {
 
-    val shortTitle: String
-        get() = title.smartTruncate(45)
+    val headline: String
+        get() {
+            val shortDesc = description.removeImgTag().take(150)
+            // Using toString because we don't want any styles to be applied here
+            return HtmlCompat.fromHtml(shortDesc, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+        }
 
     val prettyDate: CharSequence
         get() {
@@ -25,3 +28,8 @@ data class RssFeed(
             } ?: "-"
         }
 }
+
+data class RssItem(val id: Int, var name: String, val group: String, val enabled: Boolean, val iconUrl: String?)
+
+val regex = "<img.+?>".toRegex()
+fun String.removeImgTag() = replace(regex, "")

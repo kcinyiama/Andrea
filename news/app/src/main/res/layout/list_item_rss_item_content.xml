@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="wrapper"
+            type="com.andrea.rss.ui.menu.rss.RssItemsAdapter.WrappedRssItem" />
+
+        <variable
+            name="viewModel"
+            type="com.andrea.rss.ui.menu.rss.RssItemsViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:applySelection="@{wrapper.selected}"
+        android:background="@drawable/ic_action_mode"
+        android:onLongClickListener="@{(view) -> viewModel.startActionMode(wrapper.rssItem.id)}">
+
+        <TextView
+            android:id="@+id/item_name"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="@{wrapper.rssItem.name}"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/item_enabled"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Andrea Live Sports" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/item_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:checked="@{wrapper.rssItem.enabled}"
+            android:onClick="@{(view) -> viewModel.enableOrDisableItem(wrapper.rssItem.id)}"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/item_name"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

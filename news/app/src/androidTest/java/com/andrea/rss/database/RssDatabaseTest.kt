@@ -104,28 +104,28 @@ class RssDatabaseTest {
         itemsDao.insert(item1, item2)
 
         val feed1 = DatabaseRssFeed(
-            guid = "1",
+            guid = "guid1",
             title = "Rss sport feed 1",
             link = "link1",
             description = "description1",
             rssItemId = 1
         )
         val feed2 = DatabaseRssFeed(
-            guid = "2",
+            guid = "guid2",
             title = "Rss sport feed 2",
             link = "link2",
             description = "description2",
             rssItemId = 1
         )
         val feed3 = DatabaseRssFeed(
-            guid = "3",
+            guid = "guid3",
             title = "Rss fashion feed 1",
             link = "link1",
             description = "description1",
             rssItemId = 2
         )
         val feed4 = DatabaseRssFeed(
-            guid = "4",
+            guid = "guid4",
             title = "Rss fashion feed 2",
             link = "link2",
             description = "description2",

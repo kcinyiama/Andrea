@@ -2,8 +2,9 @@ package com.andrea.rss.database
 
 import androidx.room.*
 import com.andrea.rss.domain.RssFeed
-import com.andrea.rss.network.ParsedRssFeed
-import com.andrea.rss.network.ParsedRssItem
+import com.andrea.rss.domain.RssItem
+import com.andrea.rss.parser.ParsedRssFeed
+import com.andrea.rss.parser.ParsedRssItem
 
 /*
  * TODO Basic rss item model. This is used to make the DatabaseRssFeed work.
@@ -31,6 +32,8 @@ data class DatabaseRssItem(
     var fetched: Int = 0
 )
 
+fun DatabaseRssItem.isEnabled(): Boolean = enabled == 1
+
 @Entity(
     tableName = "rss_feed",
     foreignKeys = [ForeignKey(
@@ -48,6 +51,7 @@ data class DatabaseRssFeed(
     var link: String,
     var description: String,
     var guid: String,
+    var imageUrls: String? = null,
     @ColumnInfo(name = "publication_date")
     var publicationDate: String? = null,
     @ColumnInfo(name = "rss_item_id", index = true)
@@ -63,16 +67,16 @@ data class DatabaseRssItemWithFeeds(
     val feeds: List<DatabaseRssFeed>
 )
 
-// TODO Delete later
-val images = arrayListOf(
-    "https://images.pexels.com/photos/7688377/pexels-photo-7688377.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150&w=150",
-    "https://images.pexels.com/photos/7560130/pexels-photo-7560130.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=150&w=150",
-    "https://images.pexels.com/photos/7987629/pexels-photo-7987629.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=150&w=150",
-    "https://images.pexels.com/photos/8096623/pexels-photo-8096623.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
-    "https://images.pexels.com/photos/7750026/pexels-photo-7750026.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
-    "https://images.pexels.com/photos/7175583/pexels-photo-7175583.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150"
+data class DatabaseFeedWithItem(
+    @Embedded val feed: DatabaseRssFeed,
+    @Relation(
+        parentColumn = "rss_item_id",
+        entityColumn = "id"
+    )
+    val item: DatabaseRssItem
 )
 
+@JvmName("toRssFeedModel")
 fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
     return flatMap {
         it.feeds.map { feed ->
@@ -82,29 +86,27 @@ fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
                 fullStoryLink = feed.link,
                 publicationDate = feed.publicationDate,
                 description = feed.description,
-                imageUrl = images.shuffled().first(),
-                rssItemIconUrl = it.item.iconUrl,
-                rssItemGroup = it.item.group,
-                rssItemTitle = it.item.name
+                imageUrls = feed.imageUrls?.split(",")?.toList() ?: emptyList(),
+                rssItem = RssItem(it.item.id, it.item.name, it.item.group, it.item.isEnabled(), it.item.iconUrl)
             )
         }
     }
 }
 
-
-fun DatabaseRssFeed.toModel():RssFeed {
+fun DatabaseFeedWithItem.toDomainModel(): RssFeed {
     return RssFeed(
-        id = id,
-        title = title,
-        fullStoryLink = link,
-        publicationDate = publicationDate,
-        description = description,
-        imageUrl =  images.shuffled().first(),
-        rssItemIconUrl = "https://images.pexels.com/photos/7175583/pexels-photo-7175583.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=150",
-        rssItemGroup = "sunday",
-        rssItemTitle = "Punch"
+        id = feed.id,
+        title = feed.title,
+        fullStoryLink = feed.link,
+        publicationDate = feed.publicationDate,
+        description = feed.description,
+        imageUrls = feed.imageUrls?.split(",")?.toList() ?: emptyList(),
+        rssItem = RssItem(item.id, item.name, item.group, item.isEnabled(), item.iconUrl)
     )
 }
+
+@JvmName("toRssItemModel")
+fun List<DatabaseRssItem>.toDomainModel(): List<RssItem> = map { RssItem(it.id, it.name, it.group, it.isEnabled(), it.iconUrl) }
 
 fun List<ParsedRssFeed>.toDatabaseModel(item: DatabaseRssItem): List<DatabaseRssFeed> {
     return map {
@@ -114,6 +116,7 @@ fun List<ParsedRssFeed>.toDatabaseModel(item: DatabaseRssItem): List<DatabaseRss
             description = it.description!!,
             guid = it.guid!!,
             publicationDate = it.publicationDate,
+            imageUrls = it.imageUrls.joinToString(","),
             rssItemId = item.id
         )
     }

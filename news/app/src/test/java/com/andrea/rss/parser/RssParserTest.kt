@@ -1,4 +1,4 @@
-package com.andrea.rss.network
+package com.andrea.rss.parser
 
 import com.andrea.rss.ICON_DATA_1
 import com.andrea.rss.ICON_DATA_2
@@ -6,8 +6,9 @@ import com.andrea.rss.RSS_INCOMPLETE_SAMPLE_DATA
 import com.andrea.rss.RSS_SAMPLE_DATA
 import com.andrea.rss.repository.FakeRssServiceWrapper
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.junit.Assert.*
 
 class RssParserTest {
 
@@ -15,11 +16,8 @@ class RssParserTest {
     fun `test correct size is parsed`() = assertEquals(3, RSS_SAMPLE_DATA.parseRss().rssFeeds.size)
 
     @Test
-    fun `test rss item is not parsed`() = assertNull(RSS_SAMPLE_DATA.parseRss().rssItem)
-
-    @Test
     fun `test data is parsed correctly`() {
-        val parsedData = RSS_SAMPLE_DATA.parseRss(true)
+        val parsedData = RSS_SAMPLE_DATA.parseRss()
 
         val item1 = ParsedRssItem(
             "World",
@@ -30,6 +28,7 @@ class RssParserTest {
             "1",
             "Headline 1",
             "https://www.example.com/fullstory/1",
+            listOf(),
             "Sun, 23 May 2021 14:34:05 GMT",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit")
 
@@ -37,6 +36,7 @@ class RssParserTest {
             "2",
             "Headline 2",
             "https://www.example.com/fullstory/2",
+            listOf("https://www.example.com/2.jpg"),
             "Sun, 23 May 2021 14:15:37 GMT",
             "<img src=\"https://www.example.com/2.jpg\">Lorem ipsum dolor sit amet, consectetur adipiscing elit")
 
@@ -44,8 +44,9 @@ class RssParserTest {
             "3",
             "Headline 3",
             "https://www.example.com/fullstory/3",
+            listOf("https://www.example.com/2.jpg", "https://www.example.com/3.jpg"),
             "Sun, 23 May 2021 13:29:40 GMT",
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit")
+            "<img src=\"https://www.example.com/2.jpg\"><img src=\"https://www.example.com/3.jpg\">Lorem ipsum dolor sit amet, consectetur adipiscing elit")
 
         assertTrue(parsedData.rssItem == item1)
         assertTrue(parsedData.rssFeeds.containsAll(listOf(feed1, feed2, feed3)))
