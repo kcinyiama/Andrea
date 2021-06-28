@@ -22,7 +22,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="@dimen/content_margin"
             app:cardElevation="0.6dp"
             app:cardPreventCornerOverlap="false"
             app:cardUseCompatPadding="true"
@@ -31,16 +31,15 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp">
+                android:layout_margin="@dimen/content_margin">
 
                 <TextView
                     android:id="@+id/feed_title"
-                    style="@style/TextAppearance.AppCompat.Body2"
+                    style="@style/TextAppearance.AndreaNews.ItemFeed.Title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:text="@{rssFeed.title}"
-                    android:textSize="16sp"
                     app:layout_constraintEnd_toStartOf="@+id/feed_image"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -48,14 +47,13 @@
 
                 <TextView
                     android:id="@+id/feed_body"
-                    style="@style/TextAppearance.AppCompat.Medium"
+                    style="@style/TextAppearance.AndreaNews.ItemFeed.Content"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:ellipsize="end"
                     android:maxLines="3"
                     android:text="@{rssFeed.headline}"
-                    android:textSize="14sp"
                     app:layout_constraintEnd_toStartOf="@+id/feed_image"
                     app:layout_constraintStart_toStartOf="@+id/feed_title"
                     app:layout_constraintTop_toBottomOf="@+id/feed_title"
@@ -63,8 +61,8 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/feed_image"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="@dimen/image_headline"
+                    android:layout_height="@dimen/image_headline"
                     android:layout_margin="0.5dp"
                     android:scaleType="centerCrop"
                     app:imageUrl="@{rssFeed.imageUrls}"
@@ -75,8 +73,8 @@
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/item_icon"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="@dimen/image_avatar"
+                    android:layout_height="@dimen/image_avatar"
                     android:layout_marginTop="8dp"
                     android:scaleType="centerCrop"
                     app:imageUrl="@{rssFeed.rssItem.iconUrl}"

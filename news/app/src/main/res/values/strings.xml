@@ -3,14 +3,22 @@
     <string name="add">Add</string>
     <string name="app_name">Andrea News</string>
     <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
     <string name="delete">Delete</string>
+    <plurals name="delete_feed_source">
+        <item quantity="one">Delete feed source?</item>
+        <item quantity="other">Delete feed sources?</item>
+    </plurals>
+    <string name="delete_feed_source_message">This will delete this source and all the linked feeds</string>
     <string name="feed_open_error">Could not open feed</string>
     <string name="feed_save_error">Could not save feed</string>
     <string name="feed_save_success">Feed saved</string>
     <string name="feed_share">Share feed</string>
     <string name="feed_talkback">Listen to feed</string>
+    <string name="new_feed">New feed</string>
     <string name="my_feeds">My feeds</string>
     <string name="please_wait">Please wait…</string>
+    <string name="prompt_rss_link">Enter Rss link</string>
     <string name="rss_add_new_feed">New RSS feed</string>
     <string name="rss_url_hint">https://example.com/rss</string>
     <string name="save">Save</string>

@@ -52,10 +52,6 @@ class MainFragment : Fragment() {
                     findNavController().navigate(MainFragmentDirections.actionMainFragmentToRssItemsFragment())
                     true
                 }
-                R.id.about -> {
-                    findNavController().navigate(MainFragmentDirections.actionMainFragmentToAboutFragment())
-                    true
-                }
                 else -> false
             }
         }

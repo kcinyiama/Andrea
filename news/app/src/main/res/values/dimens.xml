@@ -5,5 +5,8 @@
     <dimen name="card_bottom_margin">26dp</dimen>
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="card_corner_radius">5dp</dimen>
+    <dimen name="content_margin">10dp</dimen>
+    <dimen name="image_headline">100dp</dimen>
+    <dimen name="image_avatar">20dp</dimen>
 
 </resources>

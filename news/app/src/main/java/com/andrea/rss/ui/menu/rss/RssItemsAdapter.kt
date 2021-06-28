@@ -13,6 +13,8 @@ import com.andrea.rss.domain.RssItem
 class RssItemsAdapter(private val rssItemViewModel: RssItemsViewModel) :
     ListAdapter<RssItemsAdapter.WrappedRssItem, RssItemsAdapter.ViewHolder>(RssItemDiffCallback()) {
 
+    var actionModeEnabled = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent, viewType, rssItemViewModel)
     }
@@ -22,7 +24,15 @@ class RssItemsAdapter(private val rssItemViewModel: RssItemsViewModel) :
     }
 
     fun submit(list: List<RssItem>) {
-        submitList(list.toWrappedRssItems())
+        val items = list.toWrappedRssItems()
+        if (actionModeEnabled) {
+            for (item in items) {
+                currentList.firstOrNull { !it.isHeader && it.rssItem.id == item.rssItem.id }?.let {
+                    item.selected = it.selected
+                }
+            }
+        }
+        submitList(items)
     }
 
     override fun getItemViewType(position: Int) =

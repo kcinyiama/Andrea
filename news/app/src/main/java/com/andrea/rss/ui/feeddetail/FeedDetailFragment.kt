@@ -53,10 +53,8 @@ class FeedDetailFragment : Fragment() {
                 scrollRange = if (scrollRange == -1) appBarLayout.totalScrollRange else scrollRange
                 if (scrollRange + verticalOffset == 0) {
                     isExpanded = true
-                    binding.toolbar.background = null
                 } else if (isExpanded) {
                     isExpanded = false
-                    binding.toolbar.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.transparent_dark))
                 }
             }
         })

@@ -36,6 +36,7 @@
                 app:expandedTitleTextAppearance="@style/TextAppearance.App.CollapsingToolbar.Expanded"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 app:maxLines="2"
+                app:statusBarScrim="@color/primaryColor"
                 app:title="@{rssFeed.title}"
                 tools:title="Andrea News">
 

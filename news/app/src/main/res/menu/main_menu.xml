@@ -4,11 +4,7 @@
 
     <item
         android:id="@+id/item"
+        android:icon="@drawable/ic_baseline_list_alt_24"
         android:title="@string/my_feeds"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/about"
-        android:title="@string/about"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

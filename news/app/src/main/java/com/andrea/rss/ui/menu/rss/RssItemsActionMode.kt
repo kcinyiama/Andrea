@@ -4,6 +4,7 @@ import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import com.andrea.rss.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class RssItemsActionMode(
     private val activity: AppCompatActivity,
@@ -22,8 +23,9 @@ class RssItemsActionMode(
                     adapter.markItemSelection(id, true)
                 }
                 else -> {
-                    removeIf { it == id }
-                    adapter.markItemSelection(id, false)
+                    if (removeAll { it == id }) {
+                        adapter.markItemSelection(id, false)
+                    }
                 }
             }
 
@@ -33,6 +35,7 @@ class RssItemsActionMode(
                 else -> actionMode?.title = count().let { if (it > 0) it.toString() else "" }
             }
         }
+        adapter.actionModeEnabled = true
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu?): Boolean {
@@ -48,8 +51,17 @@ class RssItemsActionMode(
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delete -> {
-                viewModel.deleteItems(selectedItemIds)
-                mode.finish()
+                MaterialAlertDialogBuilder(activity)
+                    .setTitle(activity.resources.getQuantityString(R.plurals.delete_feed_source, selectedItemIds.size))
+                    .setMessage(activity.resources.getString(R.string.delete_feed_source_message))
+                    .setNegativeButton(activity.resources.getString(R.string.cancel)) { _, _ ->
+                        // Do nothing
+                    }
+                    .setPositiveButton(activity.resources.getString(R.string.confirm)) { _, _ ->
+                        viewModel.deleteItems(selectedItemIds)
+                        mode.finish()
+                    }
+                    .show()
                 true
             }
             else -> false
@@ -58,6 +70,8 @@ class RssItemsActionMode(
 
     override fun onDestroyActionMode(mode: ActionMode) {
         actionMode = null
+        selectedItemIds.clear()
+        adapter.actionModeEnabled = false
         viewModel.endActionMode()
         adapter.clearSelection()
     }
