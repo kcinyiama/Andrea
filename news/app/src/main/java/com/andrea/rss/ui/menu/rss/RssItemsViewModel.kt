@@ -35,7 +35,7 @@ class RssItemsViewModel internal constructor(private val rssRepository: RssRepos
 
     fun deleteItems(rssIds: List<Int>) {
         viewModelScope.launch {
-            rssRepository.deleteItems(rssIds)
+            rssRepository.deleteItems(rssIds.toList())
         }
     }
 

@@ -52,6 +52,7 @@ data class DatabaseRssFeed(
     var description: String,
     var guid: String,
     var imageUrls: String? = null,
+    var author: String? = null,
     @ColumnInfo(name = "publication_date")
     var publicationDate: String? = null,
     @ColumnInfo(name = "rss_item_id", index = true)
@@ -84,10 +85,17 @@ fun List<DatabaseRssItemWithFeeds>.toDomainModel(): List<RssFeed> {
                 id = feed.id,
                 title = feed.title,
                 fullStoryLink = feed.link,
+                author = feed.author ?: it.item.group,
                 publicationDate = feed.publicationDate,
                 description = feed.description,
                 imageUrls = feed.imageUrls?.split(",")?.toList() ?: emptyList(),
-                rssItem = RssItem(it.item.id, it.item.name, it.item.group, it.item.isEnabled(), it.item.iconUrl)
+                rssItem = RssItem(
+                    it.item.id,
+                    it.item.name,
+                    it.item.group,
+                    it.item.isEnabled(),
+                    it.item.iconUrl
+                )
             )
         }
     }
@@ -98,6 +106,7 @@ fun DatabaseFeedWithItem.toDomainModel(): RssFeed {
         id = feed.id,
         title = feed.title,
         fullStoryLink = feed.link,
+        author = feed.author ?: item.group,
         publicationDate = feed.publicationDate,
         description = feed.description,
         imageUrls = feed.imageUrls?.split(",")?.toList() ?: emptyList(),

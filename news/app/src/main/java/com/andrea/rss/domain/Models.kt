@@ -10,7 +10,8 @@ data class RssFeed(
     val imageUrls: List<String>,
     val fullStoryLink: String,
     val publicationDate: String?,
-    val description: String,
+    var description: CharSequence,
+    val author: String,
     val rssItem: RssItem
 ) {
 
@@ -29,7 +30,13 @@ data class RssFeed(
         }
 }
 
-data class RssItem(val id: Int, var name: String, val group: String, val enabled: Boolean, val iconUrl: String?)
+data class RssItem(
+    val id: Int,
+    var name: String,
+    val group: String,
+    val enabled: Boolean,
+    val iconUrl: String?
+)
 
-val regex = "<img.+?>".toRegex()
-fun String.removeImgTag() = replace(regex, "")
+private val regex = "<img.+?>".toRegex()
+fun CharSequence.removeImgTag() = replace(regex, "")

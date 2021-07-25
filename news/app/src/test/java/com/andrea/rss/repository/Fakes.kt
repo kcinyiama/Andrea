@@ -58,6 +58,10 @@ class FakeRssItemDao : RssItemDao {
         // Nothing to emit
     }
 
+    override fun getFeedWithItemById(feedId: Int): Flow<DatabaseFeedWithItem> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun delete(ids: List<Int>) {
         TODO("Not yet implemented")
     }

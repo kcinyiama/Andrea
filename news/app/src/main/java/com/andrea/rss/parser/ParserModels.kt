@@ -15,6 +15,7 @@ data class ParsedRssFeed(
     var link: String? = null,
     var imageUrls: List<String> = emptyList(),
     var publicationDate: String? = null,
+    var author: String? = null,
     var description: String? = null,
 ) {
     fun isValid(): Boolean {

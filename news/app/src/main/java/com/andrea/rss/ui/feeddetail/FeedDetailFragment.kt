@@ -40,8 +40,15 @@ class FeedDetailFragment : Fragment() {
                     requireContext().toast(R.string.feed_open_error)
                     activity?.finish()
                 }
-                else -> binding.rssFeed = rssFeed
+                else -> {
+                    binding.rssFeed = rssFeed
+                    viewModel.fetchMedia(requireContext(), rssFeed)
+                }
             }
+        }
+
+        viewModel.feed.observe(viewLifecycleOwner) {
+            binding.rssFeed = it
         }
 
         binding.toolbar.setNavigationOnClickListener { activity?.onBackPressed() }

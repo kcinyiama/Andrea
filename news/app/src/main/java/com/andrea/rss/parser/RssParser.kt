@@ -80,6 +80,7 @@ private class RssFeedHandler : DefaultHandler() {
             ItemTag.GUID -> guid = guid.getVal(str)
             ItemTag.DESCRIPTION -> description = description.getVal(str)
             ItemTag.PUBLICATION_DATE -> publicationDate = publicationDate.getVal(str)
+            ItemTag.AUTHOR -> author = author.getVal(str)
             else -> { /* Do nothing */ }
         }
     }

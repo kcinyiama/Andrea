@@ -21,6 +21,14 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <!-- Feed detail item style -->
+    <style name="TextAppearance.AndreaNews.DetailFeed.Title" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">18sp</item>
+    </style>
+    <style name="TextAppearance.AndreaNews.DetailFeed.Content" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:textSize">16sp</item>
+    </style>
+
     <!-- Action mode text style -->
     <style name="TextAppearance.AndreaNews.ActionMode.TextStyle" parent="TextAppearance.AppCompat.Widget.ActionMode.Title">
         <item name="android:textColor">@color/primaryTextColor</item>

@@ -8,5 +8,6 @@
     <dimen name="content_margin">10dp</dimen>
     <dimen name="image_headline">100dp</dimen>
     <dimen name="image_avatar">20dp</dimen>
+    <dimen name="author_image">25dp</dimen>
 
 </resources>

@@ -115,6 +115,7 @@ dependencies {
     // Room for database
     implementation("androidx.room:room-ktx:2.3.0")
     implementation("androidx.room:room-runtime:2.3.0")
+    implementation("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
 
     kapt("androidx.room:room-compiler:2.3.0")
 
@@ -132,6 +133,8 @@ dependencies {
 
     // HTML Parser
     implementation("org.jsoup:jsoup:1.13.1")
+
+
 
     // Coroutines testing
 //    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
