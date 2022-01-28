@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".RssApplication"
         android:allowBackup="false"
         android:fullBackupOnly="false"
         android:icon="@drawable/ic_launcher"

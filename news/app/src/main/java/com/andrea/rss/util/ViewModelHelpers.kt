@@ -18,11 +18,7 @@ class AppViewModelFactory(
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         val database = getDatabase(context.applicationContext)
-        val repository = RssRepository.getInstance(
-            DefaultRssServiceWrapper(),
-            database.itemsDao,
-            database.feedsDao
-        )
+        val repository = RssRepository.getInstance(DefaultRssServiceWrapper(), database)
 
         return when {
             modelClass.isAssignableFrom(MainViewModel::class.java) -> {

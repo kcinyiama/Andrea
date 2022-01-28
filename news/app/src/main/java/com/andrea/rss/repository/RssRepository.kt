@@ -21,9 +21,15 @@ class RssRepository private constructor(
         @Volatile
         private var instance: RssRepository? = null
 
+        // TODO Can be deleted?
         fun getInstance(network: RssServiceWrapper, itemsDao: RssItemDao, feedsDao: RssFeedDao) =
             instance ?: synchronized(this) {
                 instance ?: RssRepository(network, itemsDao, feedsDao).also { instance = it }
+            }
+
+        fun getInstance(network: RssServiceWrapper, database: RssDatabase) =
+            instance ?: synchronized(this) {
+                instance ?: RssRepository(network, database.itemsDao, database.feedsDao).also { instance = it }
             }
     }
 

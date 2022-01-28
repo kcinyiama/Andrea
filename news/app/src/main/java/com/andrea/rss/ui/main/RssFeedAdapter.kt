@@ -10,6 +10,7 @@ import com.andrea.rss.domain.RssFeed
 
 class RssFeedAdapter(private val viewModel: MainViewModel) :
     ListAdapter<RssFeed, RssFeedAdapter.ViewHolder>(RssFeedDiffCallback()) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent, viewModel)
     }
